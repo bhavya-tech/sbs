@@ -19,5 +19,6 @@ from db import urls
 
 urlpatterns = [
     path('db/',include('db.urls')),
+    path('home/',include('home.urls')),
     path('admin/', admin.site.urls),
 ]

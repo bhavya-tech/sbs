@@ -1,6 +1,11 @@
 <html>
     <body>
+    {%if user.is_authenticated %}
         {{ name }}
+        <p> hello</p>
+    {% else %}
+        <p> login plz</p>
+    {% endif %}
 
         <a href ="{% url 'db:user_logout' %}" > logout </a>
     </body>
