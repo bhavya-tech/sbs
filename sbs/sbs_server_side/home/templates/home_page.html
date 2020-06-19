@@ -1,12 +1,133 @@
-<html>
-    <body>
-    {%if user.is_authenticated %}
-        {{ name }}
-        <p> hello</p>
-    {% else %}
-        <p> login plz</p>
-    {% endif %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% load static %}
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home Page</title>
+<link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<link href="{% static 'home.css' %}" rel="stylesheet" type="text/css">
+<script src="home.js"></script>
+</head> 
+<body style="background-color: snow ;">
+<nav class="navbar navbar-default navbar-expand-lg navbar-light">
+	<div class="navbar-header d-flex col">
+		<img src="logo2.jpeg " style="width: 25%; padding: 12px;">  		
+		<button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle navbar-toggler ml-auto">
+			<span class="navbar-toggler-icon"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		</button>
+	</div>
+	<!-- Collection of nav links, forms, and other content for toggling -->
+	<div id="navbarCollapse" class="collapse navbar-collapse justify-content-start">
+		<ul class="nav navbar-nav">
+			<li class="nav-item"><a href="#" class="nav-link">Home</a></li>			
+			<li class="nav-item dropdown">
+				<a data-toggle="dropdown" class="nav-link dropdown-toggle" href="#">Menu<b class="caret"></b></a>
+				<ul class="dropdown-menu">					
+					<li><a href="#" class="dropdown-item">Upcoming Events</a></li>
+					<li><a href="#" class="dropdown-item">Send Requests</a></li>
+					<li><a href="#" class="dropdown-item">Pending Requests</a></li>
+					<li><a href="#" class="dropdown-item">Available Time-slots</a></li>
+				</ul>
+			</li>
+			<li class="nav-item "><a href="#" class="nav-link">Contact</a></li>
+			<li class="nav-item"><a href="#" class="nav-link"><input type="date" id="datepicker" style="width:150px;">Calendar</a></li>
+			
+		</ul>		
+		<ul class="nav navbar-nav navbar-right ml-auto">			
+			<li class="nav-item dropdown">
+				<a data-toggle="dropdown" class="nav-link dropdown-toggle" href="#"><i class="fa fa-search"></i></a>
+				<a data-toggle="dropdown" class="nav-link dropdown-toggle hide" href="#"><i class="fa fa-close"></i></a>
+				<ul class="dropdown-menu">
+					<li>
+                        <form>
+                            <div class="input-group search-box">
+								<form>								
+								<input type="number" id="search" class="form-control" placeholder="Search by room number" ><p style="text-align: center;">Or<br>Search by time slot</p>
+								<input type="time" id="search" class="form-control" placeholder="to" ><input type="time" id="search" class="form-control" placeholder="from" >
+								</form>
+								<span class="input-group-btn">
+									<button type="button" class="btn btn-primary"><i class="fa fa-search"></i></button>
+								</span>
+                            </div>
+                        </form>                        
+					</li>
+				</ul>
+			</li>
+			
+			<li type="button" class="nav-item" data-toggle="tooltip" data-placement="bottom" title="Logout"><a href="{% url 'db:user_logout' %}" class="nav-link"><i class="fa fa-sign-out"></i></a></li>
+			
+		</ul>
+  </div>
+</nav>
+<div class="table-responsive">
+  	<h2>Available Rooms</h2>
 
-        <a href ="{% url 'db:user_logout' %}" > logout </a>
-    </body>
-</html>
+	{% if empty_slots %}
+		<table id="customers">
+				<tr>
+					<th>Room No.</th>
+					<th>Time Slot</th>
+				</tr>
+
+				{% for room_no, rec in empty_slots.items %}
+
+					<tr >
+						<td rowspan = "{rec|length}"> {{ room_no }} </td> <!--  Room no.  --> 
+
+					
+					    <td>
+					        {% for entries in rec %}
+
+								<!--  time slot  -->
+								<button type="button" class="btn" data-toggle="modal" data-target="#myModal">
+									{{ entries.0 }} - {{ entries.1 }}
+								</button> 
+							
+					        {% endfor %}
+                        </td>	
+					</tr>
+				{% endfor %}
+
+		</table>
+
+	{% else %}
+		<p> No rooms empty </p>
+
+	{% endif %}
+
+</div>
+<div id="myModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+  
+	  <!-- Modal content-->
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <button type="button" class="close" data-dismiss="modal">&times;</button>
+		  <h4 class="modal-title">Send Request</h4>
+		</div>
+		<div class="modal-body">
+		  <input type="time" id="time" class="form-control" placeholder="to and from">and<input type="time" id="from" class="form-control" placeholder="time:from"> 
+		  <input type="search"  id="school" class="form-control" placeholder="School">
+		  <input type="number" id="room" class="form-control" placeholder="Room number">
+		  <input type="text" id="description" class="form-control" placeholder="Event details"> 
+		</div>
+		<div class="modal-footer">
+		  <button type="submit" class="btn btn-default" data-dismiss="modal">Submit</button>
+		  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		</div>
+	  </div>
+  
+	</div>
+  </div>
+</body>
+</html>                                                        

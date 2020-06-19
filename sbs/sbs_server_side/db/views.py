@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from db.forms import UserForm
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
@@ -17,7 +17,7 @@ def user_login(request):
         if user:
             if user.is_active:
                 login(request,user)
-                return render(request,'home_page.html',{'name':username})
+                return redirect('home:homePage')
             else:
                 return HttpResponse("Your account was inactive.")
         else:
