@@ -25,7 +25,6 @@ def homePage(request):
         _from = None
         to = None
         datereq = None
-        #print("AA               ")
         
         # Set defaults to empty fileds
         if 'room' in request.POST and request.POST['room'] is not '':
@@ -41,18 +40,22 @@ def homePage(request):
         
         if 'to' in request.POST:
             try:
-                to =  datetime.strptime(request.POST['to'], "%I:%M %p")
+                to =  datetime.strptime(request.POST['to'], '%H:%M').time()
             except ValueError:
+                print("valerr")
                 to = time(23,59,59)
         else:
+            print("else")
             to = time(23,59,59)
 
         if 'from' in request.POST:
             try:
-                _from =  datetime.strptime(request.POST['from'], "%I:%M %p")
+                _from = datetime.strptime(request.POST['from'], '%H:%M').time()
             except ValueError:
+                
                 _from = datetime.now().time()
         else:
+           
             _from = datetime.now().time()
 
         empty_slots = generateEmptySlots(room,_from,to,datereq)

@@ -52,13 +52,16 @@
                         <form  action = "{% url 'home:homePage'%}" method = "post">
                             <div class="input-group search-box">
 								<form>
-								<input type="date" id="datepicker" class="form-control">								
-								<p style="text-align:center;">Search by Room number</p><input type="text" id="search" class="form-control" placeholder="Search by room number" name = "room"><p style="text-align: center;">Or<br>Search by time slot</p>
-								From:<input type="time" id="timeFrom" class="form-control" placeholder="_from" name = "to">To:<input type="time" id="timeTo" class="form-control" placeholder="from" name = "to">
+									<input type="date" id="datepicker" class="form-control">								
+									<p style="text-align:center;">Search by Room number</p><input type="text" id="search" class="form-control" placeholder="Search by room number" name = "room"><p style="text-align: center;">Or<br>Search by time slot</p>
+									From:
+									<input type="time" id="timeFrom" class="form-control" placeholder="from" name = "from"><br>
+									To:
+									<input type="time" id="timeTo" class="form-control" placeholder="from" name = "to">
 								</form>
-								<span class="input-group-btn">
-									<button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
-								</span>
+									<span class="input-group-btn">
+										<button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+									</span>
                             </div>
                         </form>                        
 					</li>
