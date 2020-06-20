@@ -1,25 +1,64 @@
 from django.shortcuts import render
-from home.models import Record
+from home.models import Record, Rooms
 from datetime import date, datetime, time
 import time as t
 from collections import defaultdict 
+from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 
+'''
+request.user.is_staff to know if is admin
+'''
 
+@csrf_exempt
 def homePage(request):
     empty_slots = {}
     if request.method == 'GET':
 
         now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
+        current_time = now.strftime( "%I:%M %p")
         #search for all empty slots
         empty_slots = generateEmptySlots(None,current_time,time(23,59,59), date.today())
 
     else:
-        room = request.POST['room']
-        _from = request.POST['from']
-        to = request.POST['to']
-        datereq = request.POST['date']
+        room = None
+        _from = None
+        to = None
+        datereq = None
+        #print("AA               ")
+        
+        # Set defaults to empty fileds
+        if 'room' in request.POST and request.POST['room'] is not '':
+            room = request.POST['room']
+
+        if 'date' in request.POST:
+            try:
+                datereq =  datetime.datetime.strptime(request.POST['date'], "%d/%m/%Y")
+            except ValueError:
+                datereq = date.today()
+        else:
+            datereq = date.today()
+        
+        if 'to' in request.POST:
+            try:
+                to =  datetime.strptime(request.POST['to'], "%I:%M %p")
+            except ValueError:
+                to = time(23,59,59)
+        else:
+            to = time(23,59,59)
+
+        if 'from' in request.POST:
+            try:
+                _from =  datetime.strptime(request.POST['from'], "%I:%M %p")
+            except ValueError:
+                _from = datetime.now().time()
+        else:
+            _from = datetime.now().time()
+
         empty_slots = generateEmptySlots(room,_from,to,datereq)
+
+
+
 
     empty_slots = dict(empty_slots)
     return  render(request, 'home_page.html', {'empty_slots':empty_slots})
@@ -57,15 +96,19 @@ def generateRoomDict(room,_from,to,datereq):
 
 def generateEmptySlots(room,_from,to,datereq):
     room_dict = generateRoomDict(room,_from,to,datereq)
-    empty_slot = defaultdict(list)
+
+    if room is None:
+        empty_slot = {new_list.room: [] for new_list in Rooms.objects.all()}
+    else:
+        empty_slot = {room : []}
 
     for rooms in room_dict.keys():
 
         begin_time = None
 
         # if the slot beginning of day is not boooked
-        if room_dict[rooms][0].from_ts is not time(7): # time to begin shool 
-            empty_slot[rooms].append((time(7), room_dict[rooms][0].from_ts))
+        if room_dict[rooms][0].from_ts is not _from: # time to begin shool 
+            empty_slot[rooms].append((_from, room_dict[rooms][0].from_ts))
         
         begin_time = room_dict[rooms][0].to_ts
 
@@ -74,9 +117,13 @@ def generateEmptySlots(room,_from,to,datereq):
             begin_time = room_dict[rooms][0].to_ts
         
         if room_dict[rooms][-1].from_ts is not time(23,59,59):
-            empty_slot[rooms].append((room_dict[rooms][0].to_ts,time(23,59,59)))
+            empty_slot[rooms].append((room_dict[rooms][0].to_ts,to))
     
-    #print(room_dict)
-    #print(empty_slot)
+    #if there is no record of a room then it is empty whole day
+    for key,value in empty_slot.items():
+        if len(value) is 0:
+            if Record.objects.filter(room = key, date = datereq).count() is 0:
+                value.append((_from,to))
+
     return empty_slot
              

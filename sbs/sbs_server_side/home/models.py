@@ -26,3 +26,9 @@ class Requests(models.Model):
 
     def __str__(self):
         return self.room
+
+class Rooms(models.Model):
+    room = models.CharField(max_length=3)
+
+    def __str__(self):
+        return self.room
