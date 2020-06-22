@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from home.models import Record, Rooms
 from datetime import date, datetime, time
 import time as t
@@ -10,61 +10,21 @@ from django.views.decorators.csrf import csrf_exempt
 request.user.is_staff to know if is admin
 '''
 
+
+"""
+req_status      meaning
+0               None
+1               Successfully requested
+2               overlapped request
+"""
 @csrf_exempt
-def homePage(request):
-    empty_slots = {}
-    if request.method == 'GET':
-
-        now = datetime.now()
-        current_time = now.strftime( "%I:%M %p")
-        #search for all empty slots
-        empty_slots = generateEmptySlots(None,current_time,time(23,59,59), date.today())
-
-    else:
-        room = None
-        _from = None
-        to = None
-        datereq = None
-        
-        # Set defaults to empty fileds
-        if 'room' in request.POST and request.POST['room'] is not '':
-            room = request.POST['room']
-
-        if 'date' in request.POST:
-            try:
-                datereq =  datetime.datetime.strptime(request.POST['date'], "%d/%m/%Y")
-            except ValueError:
-                datereq = date.today()
-        else:
-            datereq = date.today()
-        
-        if 'to' in request.POST:
-            try:
-                to =  datetime.strptime(request.POST['to'], '%H:%M').time()
-            except ValueError:
-                print("valerr")
-                to = time(23,59,59)
-        else:
-            print("else")
-            to = time(23,59,59)
-
-        if 'from' in request.POST:
-            try:
-                _from = datetime.strptime(request.POST['from'], '%H:%M').time()
-            except ValueError:
-                
-                _from = datetime.now().time()
-        else:
-           
-            _from = datetime.now().time()
-
-        empty_slots = generateEmptySlots(room,_from,to,datereq)
-
-
-
+def homePage(request,req_status):
+    room,_from,to,datereq = parseRequest(request)
+    empty_slots = generateEmptySlots(room,_from,to,datereq)
 
     empty_slots = dict(empty_slots)
-    return  render(request, 'home_page.html', {'empty_slots':empty_slots})
+    return  render(request, 'home_page.html', {'empty_slots':empty_slots, 'req_status':req_status})
+
 
 """
 give args of room, from and to with date corresponding
@@ -72,14 +32,6 @@ It returns a dict with key as room and valuue as the list of Record objects
 """
 def generateRoomDict(room,_from,to,datereq):
     record_query_set = None
-
-    '''
-    print(_from)
-    print(to)
-    print(room)
-    print(datereq)
-    '''
-
     # or None
     if room is None:
         #print("get all rooms")
@@ -129,3 +81,49 @@ def generateEmptySlots(room,_from,to,datereq):
 
     return empty_slot
              
+def parseRequest(request):
+
+    room = None
+    _from = None
+    to = None
+    datereq = None
+
+    if request.method == 'GET':
+        now = datetime.now()
+        _from = now.strftime( "%I:%M %p")
+        to = time(23,59,59)
+        datereq = date.today()
+
+    else:
+
+        # Set defaults to empty fileds
+        if 'room' in request.POST and request.POST['room'] is not '':
+            room = request.POST['room']
+
+        if 'date' in request.POST:
+            try:
+                datereq =  datetime.datetime.strptime(request.POST['date'], "%d/%m/%Y")
+            except ValueError:
+                datereq = date.today()
+        else:
+            datereq = date.today()
+        
+        if 'to' in request.POST:
+            try:
+                to =  datetime.strptime(request.POST['to'], '%H:%M').time()
+            except ValueError:
+                to = time(23,59,59)
+        else:
+            to = time(23,59,59)
+
+        if 'from' in request.POST:
+            try:
+                _from = datetime.strptime(request.POST['from'], '%H:%M').time()
+            except ValueError:
+                
+                _from = datetime.now().time()
+        else:
+           
+            _from = datetime.now().time()
+
+    return room,_from,to,datereq

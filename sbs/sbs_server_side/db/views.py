@@ -5,7 +5,6 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-
 def loginPage(request):
     return render(request,'login.html')
 
@@ -17,7 +16,7 @@ def user_login(request):
         if user:
             if user.is_active:
                 login(request,user)
-                return redirect('home:homePage')
+                return redirect('home:homePage',req_status=0)
             else:
                 return HttpResponse("Your account was inactive.")
         else:

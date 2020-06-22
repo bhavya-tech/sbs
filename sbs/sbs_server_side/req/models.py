@@ -1,9 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-#this object will be used for database
-
-class Record(models.Model):
+class Request(models.Model):
     details = models.CharField(max_length = 500)
     room = models.CharField(max_length = 3)
     event = models.CharField(max_length = 10)
@@ -11,12 +9,6 @@ class Record(models.Model):
     date = models.DateField(null = True)
     from_ts = models.TimeField()
     to_ts = models.TimeField()
-
-    def __str__(self):
-        return self.room
-
-class Rooms(models.Model):
-    room = models.CharField(max_length=3)
 
     def __str__(self):
         return self.room

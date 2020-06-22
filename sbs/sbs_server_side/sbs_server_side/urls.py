@@ -21,4 +21,5 @@ urlpatterns = [
     path('db/',include('db.urls')),
     path('home/',include('home.urls')),
     path('admin/', admin.site.urls),
+    path('req/',include('req.urls'))
 ]
