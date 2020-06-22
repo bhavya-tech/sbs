@@ -111,7 +111,7 @@
 					        {% for entries in rec %}
 							
 								<!--  time slot  -->
-								<button type="button" class="btn" data-toggle="modal" data-target="#myModal">
+								<button type="button" class="open">
 									{{ entries.0 }} - {{ entries.1 }}
 								</button> 
 								<br>
@@ -129,67 +129,60 @@
 	{% endif %}
 
 </div>
-<div id="myModal" class="modal fade" role="dialog" style="background-color:lavendarblush; width: 50%; margin-left: auto; margin-right: auto;">
+<div id="myModal" class="modal-overlay" role="dialog">
 	<div class="modal-dialog">
   
-	  <!-- Modal content -->
+	  <!-- Modal content-->
 	  <div class="modal-content">
 		<div class="modal-header">
 		  <button type="button" class="close" data-dismiss="modal">&times;</button>
 		  <h4 class="modal-title">Send Request</h4>
 		</div>
-		<form action = "{% url 'req:makeRequest' %}" method = "post">
-			<div class="modal-body">
-				Date<input type="date" id="dateSelcted" class="form-control">
-				<script>
-					datechosen=document.getElementById("dateSelected").defaultValue="26-06-2020";
-				</script>
-				Time-slot<br>
-				From:<input type="time" id="time_from" class="form-control" name = "from" required>
-				<script>
-					time1from=document.getElementById("time_from").defaultValue="08:00";
-				</script>
-				To:<input type="time" id="time_to" class="form-control" name = "to" required> 
-				<script>
-					time1to=document.getElementById("time_to").defaultValue="11:00";
-				</script>
-				Event:<input type="text"  id="school" class="form-control" placeholder="School" name="event" required>
-				Room Number:<input type="text" id="room" class="form-control" placeholder="Room number" name = "room" required>
-				Event details:<input type="text" id="description" class="form-control" placeholder="Event details" name = "details" required>	
-			</div>
-			<div class="modal-footer">
-				<button type="submit" class="submit" data-placement="submit">Submit</button>
-			</div>
-		</form>
+		<div class="modal-body">
+			Time-slot<br>From:<input type="time" id="timeFrom" class="form-control">To:<input type="time" id="timeTo" class="form-control" valueAsTime="23:59"> 
+			<script>time_to=document.getElementById("timeTo").defaultValue="23:59";</script>
+			School:<input type="search"  id="school" class="form-control" placeholder="School">
+			Room Number:<input type="number" id="room" class="form-control" placeholder="Room number">
+			Event details:<input type="text" id="description" class="form-control" placeholder="Event details">  
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="submit" data-placement="submit">Submit</button>
+		</div>
 	  </div>
   
 	</div>
   </div>
-  <script>
-	var modal = document.getElementById("myModal");
-	var btn = document.getElementById("myBtn1");
-	var timeto = document.getElementById("time_to");
-	var timefrom = document.getElementById("time_from");
-	var date_picked = document.getElementById("dateSelected");
-	var school = document.getElementById("school");
-	var roomno = document.getElementById("room");
-	var description = document.getElementById("description");
-	var button = document.getElementsByClassName("submit");
-	btn.onclick = function() {
-		modal.style.display = "block";
-	  }
-	  
-	  // When the user clicks on <span> (x), close the modal
-	  button.onclick = function() {
-		modal.style.display = "none";
-	  }
-	  
-	  // When the user clicks anywhere outside of the modal, close it
-	  window.onclick = function(event) {
-		if (event.target == modal) {
-		  modal.style.display = "none";
-		}
-	  }
-	</script>
+    <script>
+    $(".open").on("click", function() {
+  $(".modal-overlay, .modal-content").addClass("active");
+});
+
+//removes the "active" class to .popup and .popup-content when the "Close" button is clicked 
+$(".close, .modal-overlay").on("click", function() {
+  $(".modal-overlay, .modal-content").removeClass("active");
+});
+    var timeto = document.getElementById("to");
+    var timefrom = document.getElementById("from");
+    var school = document.getElementById("school");
+    var roomno = document.getElementById("room");
+    var description = document.getElementById("description");
+    var datechosen = document.getElementById("dateSelected");
+    datechosen=document.getElementById("dateSelected").defaultValue="22-06-2020";
+btn.onclick = function() {
+    modal.style.display = "block";
+  }
+  
+  // When the user clicks on <span> (x), close the modal
+  button.onclick = function() {
+    modal.style.display = "none";
+  }
+  
+  // When the user clicks anywhere outside of the modal, close it
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+</script>
 </body>
 </html>                                                        
