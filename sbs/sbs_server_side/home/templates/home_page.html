@@ -54,12 +54,12 @@
                         <form  action = "{% url 'home:homePage' 0 %}" method = "post">
                             <div class="input-group search-box">
 								<form>
-									<input type="date" id="datepicker" class="form-control">								
-									<p style="text-align:center;">Search by Room number</p><input type="text" id="search" class="form-control" placeholder="Search by room number" name = "room"><p style="text-align: center;">Or<br>Search by time slot</p>
+									<input type="date" id="datepicker" class="form-control" value = "{{date}}">								
+									<p style="text-align:center;">Search by Room number</p><input type="text" id="search" class="form-control" placeholder="Search by room number" name = "room" value = "{{room}}"><p style="text-align: center;">Or<br>Search by time slot</p>
 									From:
-									<input type="time" id="timeFrom" class="form-control" placeholder="from" name = "from"><br>
+									<input type="time" id="timeFrom" class="form-control" placeholder="from" name = "from" value = "{{from}}"><br>
 									To:
-									<input type="time" id="timeTo" class="form-control" placeholder="from" name = "to">
+									<input type="time" id="timeTo" class="form-control" placeholder="from" name = "to" value = "{{to}}">
 								</form>
 									<span class="input-group-btn">
 										<button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -143,7 +143,6 @@
 			<input type = "hidden" id = "date" name = "date" value = "{{date}}"><br>
 			Time-slot<br>From:<input type="time" id="timeFrom" class="form-control" name = "from"><br>
 			To:<input type="time" id="timeTo" class="form-control" valueAsTime="23:59" name = "to"> 
-			<script>time_to=document.getElementById("timeTo").defaultValue="23:59";</script>
 			Event: <input type = "text" id = "event" name = "event"><br>
 			<input type = "hidden" name ="username" value = "{{request.user.username}}">
 			Room Number:<input type="text" id="room" class="form-control" placeholder="Room number" name = "room">

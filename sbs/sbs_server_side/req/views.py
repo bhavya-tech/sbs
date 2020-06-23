@@ -25,7 +25,7 @@ def viewRequests(request):
     pendingReq = defaultdict(list)
     pendingReq = dict(getPendingRequest(dateReq))
 
-    return  render(request, 'pendingrequest.html',{'pendingReq':pendingReq,'date':dateReq})
+    return  render(request, 'pendingrequest.html',{'pendingReq':pendingReq,'date':dateReq,'dateCal':dateReq.strftime("%Y-%m-%d")})
 
 
 def getPendingRequest(dateReq):
@@ -48,7 +48,9 @@ def getPendingRequest(dateReq):
             else:
                 pendingReq[room_key].append(req_append)
                 req_append = []
-        pendingReq[room_key].append(req_append)
+        
+        if len(req_append) is not 0:
+            pendingReq[room_key].append(req_append)
 
     print(pendingReq)
     return pendingReq

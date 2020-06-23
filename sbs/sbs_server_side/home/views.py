@@ -19,12 +19,32 @@ req_status      meaning
 """
 @csrf_exempt
 def homePage(request,req_status):
-    room,_from,to,datereq = parseRequest(request)
+    room,_from,to,datereq,todt,_fromdt = parseRequest(request)
     empty_slots = generateEmptySlots(room,_from,to,datereq)
 
     empty_slots = dict(empty_slots)
-    return  render(request, 'home_page.html', {'empty_slots':empty_slots, 'req_status':req_status, 'date':datereq})
+    return  render(request, 'home_page.html',
+            {'empty_slots':empty_slots,
+            'req_status':req_status,
+            'date':datereq.strftime("%Y-%m-%d"),
+            'from':_fromdt.strftime("%H:%M"),
+            'to':todt.strftime("%H:%M"),
+            'room':room,
+            })
 
+def viewRecords(request):
+
+    date = None
+    if request.method == 'GET':
+        date = date.today()
+    else:
+        try:
+            date =  datetime.datetime.strptime(request.POST['date'], "%d/%m/%Y")
+        except ValueError:
+            datereq = date.today()
+
+
+    return
 
 """
 give args of room, from and to with date corresponding
@@ -85,11 +105,14 @@ def parseRequest(request):
     _from = None
     to = None
     datereq = None
+    _fromdt = None
 
     if request.method == 'GET':
         now = datetime.now()
         _from = now.strftime( "%I:%M %p")
+        _fromdt = now
         to = time(23,59,59)
+        todt = datetime.combine(date.today(),time(23,59))
         datereq = date.today()
 
     else:
@@ -108,11 +131,13 @@ def parseRequest(request):
         
         if 'to' in request.POST:
             try:
-                to =  datetime.strptime(request.POST['to'], '%H:%M').time()
+                to = datetime.strptime(request.POST['to'], '%H:%M').time()
             except ValueError:
-                to = time(23,59,59)
+                to = time(23,59)
+            todt = datetime.combine(datereq,to)
         else:
-            to = time(23,59,59)
+            to = time(23,59)
+            todt = datetime.combine(datereq,to)
 
         if 'from' in request.POST:
             try:
@@ -122,8 +147,12 @@ def parseRequest(request):
                     _from = datetime.now().time()
                 else:
                     _from = time(0)
+            _fromdt = datetime.combine(datereq,_from)
+
         else:
             _from = datetime.now().time()
+            _fromdt = datetime.combine(datereq,_from)
+            
            
 
-    return room,_from,to,datereq
+    return room,_from,to,datereq,todt,_fromdt
