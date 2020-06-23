@@ -54,8 +54,17 @@
                         <form  action = "{% url 'home:homePage' 0 %}" method = "post">
                             <div class="input-group search-box">
 								<form>
-									<input type="date" id="datepicker" class="form-control" value = "{{date}}">								
-									<p style="text-align:center;">Search by Room number</p><input type="text" id="search" class="form-control" placeholder="Search by room number" name = "room" value = "{{room}}"><p style="text-align: center;">Or<br>Search by time slot</p>
+									<input type="date" id="datepicker" class="form-control" value = "{{date}}">
+									<script>
+											document.getElementById("datepicker").setAttribute(max,"{{max_date}}")
+											{% if not request.user.is_staff %}
+												document.getElementById("datepicker").setAttribute(mim,"{{date}}")
+											{% endif %}
+									</script>
+															
+									<p style="text-align:center;">Search by Room number</p>
+									<input type="text" id="room_search" class="form-control" placeholder="Search by room number" name = "room" value = "{{room}}">
+									<p style="text-align: center;">Or<br>Search by time slot</p>
 									From:
 									<input type="time" id="timeFrom" class="form-control" placeholder="from" name = "from" value = "{{from}}"><br>
 									To:

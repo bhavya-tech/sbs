@@ -5,6 +5,7 @@ import time as t
 from collections import defaultdict 
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
+from dateutil.relativedelta import relativedelta
 
 '''
 request.user.is_staff to know if is admin
@@ -24,13 +25,14 @@ def homePage(request,req_status):
 
     empty_slots = dict(empty_slots)
     return  render(request, 'home_page.html',
-            {'empty_slots':empty_slots,
-            'req_status':req_status,
-            'date':datereq.strftime("%Y-%m-%d"),
-            'from':_fromdt.strftime("%H:%M"),
-            'to':todt.strftime("%H:%M"),
-            'room':room,
-            })
+                                            {'empty_slots':empty_slots,
+                                            'req_status':req_status,
+                                            'date':datereq.strftime("%Y-%m-%d"),
+                                            'from':_fromdt.strftime("%H:%M"),
+                                            'to':todt.strftime("%H:%M"),
+                                            'room':room,
+                                            'max_date':(datereq + relativedelta(years=1)).strftime("%Y-%m-%d"),
+                                            })
 
 def viewRecords(request):
 
@@ -118,8 +120,11 @@ def parseRequest(request):
     else:
 
         # Set defaults to empty fileds
-        if 'room' in request.POST and request.POST['room'] is not '':
-            room = request.POST['room']
+        if 'room' in request.POST:
+            try:
+                room = Rooms.objects.get(room = request.POST['room'])
+            except Rooms.DoesNotExist:
+                room = None
 
         if 'date' in request.POST:
             try:
