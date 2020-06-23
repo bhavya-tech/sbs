@@ -18,7 +18,8 @@ body {
 .modal-overlay.active {
     /*displays pop-up when "active" class is present*/
     visibility: visible;
-    position: absolute;
+    top: 2%;
+    left: 25%;
     text-align: left;
 }
 

@@ -5,6 +5,7 @@ from req import views
 app_name = 'req'
 
 urlpatterns = [
+    path('',views.requestAction, name = 'requestAction'),
     path('makeRequest',views.makeRequest, name = 'makeRequest'),
-    path('',views.viewRequests, name = 'viewRequests')
+    path('viewRequest/',views.viewRequests, name = 'viewRequests'),
 ]

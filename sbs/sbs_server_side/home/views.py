@@ -23,7 +23,7 @@ def homePage(request,req_status):
     empty_slots = generateEmptySlots(room,_from,to,datereq)
 
     empty_slots = dict(empty_slots)
-    return  render(request, 'home_page.html', {'empty_slots':empty_slots, 'req_status':req_status})
+    return  render(request, 'home_page.html', {'empty_slots':empty_slots, 'req_status':req_status, 'date':datereq})
 
 
 """
@@ -34,7 +34,6 @@ def generateRoomDict(room,_from,to,datereq):
     record_query_set = None
     # or None
     if room is None:
-        #print("get all rooms")
         record_query_set = Record.objects.filter(date__exact = datereq, from_ts__gt = _from, to_ts__lt = to).order_by('room','from_ts')
 
     else:
@@ -45,7 +44,6 @@ def generateRoomDict(room,_from,to,datereq):
     for rec in record_query_set:
         room_dict[rec.room].append(rec)
 
-    #print(room_dict)
     return room_dict
 
 
@@ -80,7 +78,7 @@ def generateEmptySlots(room,_from,to,datereq):
             value.append((_from,to))
 
     return empty_slot
-             
+
 def parseRequest(request):
 
     room = None
@@ -120,10 +118,12 @@ def parseRequest(request):
             try:
                 _from = datetime.strptime(request.POST['from'], '%H:%M').time()
             except ValueError:
-                
-                _from = datetime.now().time()
+                if datereq is date.today():
+                    _from = datetime.now().time()
+                else:
+                    _from = time(0)
         else:
-           
             _from = datetime.now().time()
+           
 
     return room,_from,to,datereq

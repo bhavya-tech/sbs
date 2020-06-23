@@ -111,7 +111,7 @@
 					        {% for entries in rec %}
 							
 								<!--  time slot  -->
-								<button type="button" class="open">
+								<button type="button" class="open" onclick = "foo(this.id)">
 									{{ entries.0 }} - {{ entries.1 }}
 								</button> 
 								<br>
@@ -138,29 +138,35 @@
 		  <button type="button" class="close" data-dismiss="modal">&times;</button>
 		  <h4 class="modal-title">Send Request</h4>
 		</div>
+		<form method = "POST" action = "{% url 'req:makeRequest'%}"
 		<div class="modal-body">
-			Time-slot<br>From:<input type="time" id="timeFrom" class="form-control">To:<input type="time" id="timeTo" class="form-control" valueAsTime="23:59"> 
+			<input type = "hidden" id = "date" name = "date" value = "{{date}}"><br>
+			Time-slot<br>From:<input type="time" id="timeFrom" class="form-control" name = "from"><br>
+			To:<input type="time" id="timeTo" class="form-control" valueAsTime="23:59" name = "to"> 
 			<script>time_to=document.getElementById("timeTo").defaultValue="23:59";</script>
-			School:<input type="search"  id="school" class="form-control" placeholder="School">
-			Room Number:<input type="number" id="room" class="form-control" placeholder="Room number">
-			Event details:<input type="text" id="description" class="form-control" placeholder="Event details">  
+			Event: <input type = "text" id = "event" name = "event"><br>
+			<input type = "hidden" name ="username" value = "{{request.user.username}}">
+			Room Number:<input type="text" id="room" class="form-control" placeholder="Room number" name = "room">
+			Event details:<input type="text" id="description" class="form-control" placeholder="Event details" name = "details">  
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="submit" data-placement="submit">Submit</button>
+			<button type="submit" class="submit" data-placement="submit">Submit</button>
 		</div>
+		</form>
 	  </div>
   
 	</div>
   </div>
     <script>
+//removes the "active" class to .popup and .popup-content when the "Close" button is clicked 
+$(".close").on("click", function() {
+  $(".modal-overlay, .modal-content").removeClass("active");
+});
     $(".open").on("click", function() {
   $(".modal-overlay, .modal-content").addClass("active");
 });
 
-//removes the "active" class to .popup and .popup-content when the "Close" button is clicked 
-$(".close, .modal-overlay").on("click", function() {
-  $(".modal-overlay, .modal-content").removeClass("active");
-});
+
     var timeto = document.getElementById("to");
     var timefrom = document.getElementById("from");
     var school = document.getElementById("school");
