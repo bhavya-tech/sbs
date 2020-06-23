@@ -53,15 +53,14 @@
 					<li>
                         <form  action = "{% url 'home:homePage' 0 %}" method = "post">
                             <div class="input-group search-box">
-								<form>
-									<input type="date" id="datepicker" class="form-control" value = "{{date}}">
+								
+								<input type="date" id="datepicker" class="form-control" min = "{{date}}" max = "{{max_date}}" value = "{{date}}">
+								{% if request.user.is_staff %}
 									<script>
-											document.getElementById("datepicker").setAttribute(max,"{{max_date}}")
-											{% if not request.user.is_staff %}
-												document.getElementById("datepicker").setAttribute(mim,"{{date}}")
-											{% endif %}
+										document.getElementById("datepicker").removeAttribute("min")
 									</script>
-															
+								{% endif %}				
+
 									<p style="text-align:center;">Search by Room number</p>
 									<input type="text" id="room_search" class="form-control" placeholder="Search by room number" name = "room" value = "{{room}}">
 									<p style="text-align: center;">Or<br>Search by time slot</p>
@@ -69,7 +68,7 @@
 									<input type="time" id="timeFrom" class="form-control" placeholder="from" name = "from" value = "{{from}}"><br>
 									To:
 									<input type="time" id="timeTo" class="form-control" placeholder="from" name = "to" value = "{{to}}">
-								</form>
+								
 									<span class="input-group-btn">
 										<button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
 									</span>
