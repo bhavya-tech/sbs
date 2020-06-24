@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from dateutil.relativedelta import relativedelta
 from django.db import models
 from django.db.models import Q
+import json
 
 '''
 request.user.is_staff to know if is admin
@@ -38,17 +39,93 @@ def homePage(request,req_status):
 
 def viewRecords(request):
 
-    date = None
-    if request.method == 'GET':
-        date = date.today()
+    room,_from,to,datereq,todt,_fromdt = parseRequest(request)
+    
+    record_slot,record_details = generateRecordDict(room,_from,to,datereq)
+
+    return render(request,'record_home.html',{'record_slot':record_slot,
+                                              'record_details':record_details,
+                                              'date':datereq.strftime("%Y-%m-%d"),
+                                              'from':_fromdt,
+                                              'to':todt.strftime("%H:%M"),
+                                              'room':room,
+                                              'max_date':(datereq + relativedelta(years=1)).strftime("%Y-%m-%d"),
+                                              })
+
+def generateRecordDict(room,_from,to,datereq):
+    room_dict = generateRoomDict(room,_from,to,datereq)
+
+    if room is None:
+        record_slot = {new_list.room: [] for new_list in Rooms.objects.all()}
+        record_details = {new_list.room: [] for new_list in Rooms.objects.all()}
     else:
-        try:
-            date =  datetime.datetime.strptime(request.POST['date'], "%d/%m/%Y")
-        except ValueError:
-            datereq = date.today()
+        record_slot = {room : []}
+        record_details = {room : []}
 
+    for rooms in room_dict.keys():
+        for rec in room_dict[rooms]:
+            record_details[rooms].append(recToDict(rec))
+            record_slot[rooms].append({'from_ts':rec.from_ts,
+                                        'to_ts':rec.to_ts,
+                                        'id':rec.id,
+                                    })
 
-    return
+    return record_slot,record_details
+
+def generateEmptySlots(room,_from,to,datereq):
+    room_dict = generateRoomDict(room,_from,to,datereq)
+
+    if room is None:
+        empty_slot = {new_list.room: [] for new_list in Rooms.objects.all()}
+    else:
+        empty_slot = {room : []}
+
+    delete_record_key = []
+    for rooms in room_dict.keys():
+
+        begin_time = None
+
+        # if the slot beginning of day is not boooked
+        if room_dict[rooms][0].from_ts != _from and _from < room_dict[rooms][0].from_ts: # time to begin shool 
+            empty_slot[rooms].append((_from, room_dict[rooms][0].from_ts))
+        
+        begin_time = room_dict[rooms][0].to_ts
+
+        for rec_ind in range(1, len(room_dict[rooms])):
+            
+            empty_slot[rooms].append((begin_time, room_dict[rooms][rec_ind].from_ts))
+            begin_time = room_dict[rooms][rec_ind].to_ts
+        
+        if room_dict[rooms][-1].to_ts != time(23,59) and room_dict[rooms][-1].to_ts < to:
+            print("AA       ")
+            empty_slot[rooms].append((room_dict[rooms][-1].to_ts,to))
+
+        if len(empty_slot[rooms]) == 0:
+            delete_record_key.append(rooms)
+    
+    #if there is no record of a room then it is empty whole day
+    for value in empty_slot.values():
+        if len(value) is 0:
+            value.append((_from,to))
+    
+    for del_key in delete_record_key:
+        del empty_slot[del_key]
+
+    return empty_slot
+
+def recToDict(rec = Record()):
+    rec_dict = {}
+
+    rec_dict['details'] = rec.details
+    rec_dict['room'] = rec.room
+    rec_dict['event'] = rec.event
+    rec_dict['requested_by'] = rec.requested_by
+    rec_dict['date'] = rec.date
+    rec_dict['from_ts'] = rec.from_ts
+    rec_dict['to_ts'] = rec.to_ts
+
+    return rec_dict
+
 
 """
 give args of room, from and to with date corresponding
@@ -56,7 +133,6 @@ It returns a dict with key as room and valuue as the list of Record objects
 """
 def generateRoomDict(room,_from,to,datereq):
     record_query_set = None
-    print(type(to))
 
     if room is None:
         record_query_set = Record.objects.filter(Q(date__exact = datereq) & ((Q(from_ts__gte = _from) & Q(from_ts__lte = to)) | (Q(to_ts__gte = _from) & Q(to_ts__lte = to)))).order_by('room','from_ts')
@@ -69,39 +145,6 @@ def generateRoomDict(room,_from,to,datereq):
         room_dict[rec.room].append(rec)
 
     return room_dict
-
-
-def generateEmptySlots(room,_from,to,datereq):
-    room_dict = generateRoomDict(room,_from,to,datereq)
-    print(room_dict)
-    if room is None:
-        empty_slot = {new_list.room: [] for new_list in Rooms.objects.all()}
-    else:
-        empty_slot = {room : []}
-
-    for rooms in room_dict.keys():
-
-        begin_time = None
-
-        # if the slot beginning of day is not boooked
-        if room_dict[rooms][0].from_ts != _from: # time to begin shool 
-            empty_slot[rooms].append((_from, room_dict[rooms][0].from_ts))
-        
-        begin_time = room_dict[rooms][0].to_ts
-
-        for rec_ind in range(1, len(room_dict[rooms])):
-            empty_slot[rooms].append((begin_time, room_dict[rooms][rec_ind].from_ts))
-            begin_time = room_dict[rooms][rec_ind].to_ts
-        
-        if room_dict[rooms][-1].to_ts != time(23,59):
-            empty_slot[rooms].append((room_dict[rooms][-1].to_ts,to))
-    
-    #if there is no record of a room then it is empty whole day
-    for value in empty_slot.values():
-        if len(value) is 0:
-            value.append((_from,to))
-
-    return empty_slot
 
 def parseRequest(request):
 
@@ -130,7 +173,7 @@ def parseRequest(request):
 
         if 'date' in request.POST:
             try:
-                datereq =  datetime.datetime.strptime(request.POST['date'], "%d/%m/%Y")
+                datereq =  datetime.datetime.strptime(request.POST['date'], '%Y-%m-%d')
             except ValueError:
                 datereq = date.today()
         else:

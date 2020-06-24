@@ -6,7 +6,6 @@ from django.views.decorators.csrf import csrf_exempt
 from collections import defaultdict
 from django.db import models
 from home.models import Record
-import json
 
 @csrf_exempt
 def viewRequests(request):
@@ -23,14 +22,12 @@ def viewRequests(request):
         else: 
             dateReq = date.today()
 
-    pendingReq, pendingReqById = getPendingRequest(dateReq)
-    json_pending_req = json.dumps(pendingReqById)
+    pendingReq= getPendingRequest(dateReq)
 
     return render(request,'pendingrequest.html',{
                                                     'pendingReq':pendingReq,
                                                     'date':dateReq,
                                                     'dateCal':dateReq.strftime("%Y-%m-%d"),
-                                                    'json_pending_req':json_pending_req,
                                                 })
 
 def getPendingRequest(dateReq):
@@ -39,14 +36,6 @@ def getPendingRequest(dateReq):
     request_query_set = Request.objects.filter(date = dateReq).order_by('room','from_ts')
     req_room_dict = defaultdict(list)
     pendingReq = defaultdict(list)
-    pendingReqById = defaultdict(dict)
-
-    for req in request_query_set:
-        req_dict = {}
-        req_dict["details"] = req.details
-        req_dict["event"] = req.event
-        req_dict["requested_by"] = req.requested_by
-        pendingReqById.update({req.id:req_dict})     
 
     for req in request_query_set:
         req_room_dict[req.room].append(req)
@@ -66,7 +55,7 @@ def getPendingRequest(dateReq):
             pendingReq[room_key].append(req_append)
 
     print(pendingReq)
-    return dict(pendingReq), dict(pendingReqById)
+    return dict(pendingReq)
 
 @csrf_exempt
 def makeRequest(request):
@@ -132,8 +121,8 @@ def overlapping(req = Request()):
         return False
 
 def deleteOverlappingReq(req = Request()):
-    Request.objects.filter(from_ts__gt = req.from_ts, from_ts__lt = req.to_ts, room = req.room).delete()
-    Request.objects.filter(to_ts__lt = req.to_ts, to_ts__gt = req.from_ts, room = req.room).delete()
+    Request.objects.filter(from_ts__gte = req.from_ts, from_ts__lt = req.to_ts, room = req.room).delete()
+    Request.objects.filter(to_ts__lte = req.to_ts, to_ts__gt = req.from_ts, room = req.room).delete()
 
 
 def cleanExpiredRequests():
