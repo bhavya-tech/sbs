@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from dateutil.relativedelta import relativedelta
 from django.db import models
+from django.db.models import Q
 
 '''
 request.user.is_staff to know if is admin
@@ -23,8 +24,8 @@ req_status      meaning
 def homePage(request,req_status):
     room,_from,to,datereq,todt,_fromdt = parseRequest(request)
     empty_slots = generateEmptySlots(room,_from,to,datereq)
-
     empty_slots = dict(empty_slots)
+    #print(empty_slots)
     return  render(request, 'home_page.html',
                                             {'empty_slots':empty_slots,
                                             'req_status':req_status,
@@ -55,12 +56,12 @@ It returns a dict with key as room and valuue as the list of Record objects
 """
 def generateRoomDict(room,_from,to,datereq):
     record_query_set = None
-    # or None
-    if room is None:
-        record_query_set = Record.objects.filter(date__exact = datereq, from_ts__gt = _from, to_ts__lt = to).order_by('room','from_ts')
+    print(type(to))
 
+    if room is None:
+        record_query_set = Record.objects.filter(Q(date__exact = datereq) & ((Q(from_ts__gte = _from) & Q(from_ts__lte = to)) | (Q(to_ts__gte = _from) & Q(to_ts__lte = to)))).order_by('room','from_ts')
     else:
-        record_query_set = Record.objects.filter(room__exact = room, date__exact = datereq, from_ts__gt = _from, to_ts__lt = to).order_by('room','from_ts')
+        record_query_set = Record.objects.filter(Q(room__exact = room) & Q(date__exact = datereq) &  ((Q(from_ts__gte = _from) & Q(from_ts__lte = to)) | (Q(to_ts__gte = _from) & Q(to_ts__lte = to)))).order_by('room','from_ts')
 
     room_dict = defaultdict(list)
 
@@ -72,7 +73,7 @@ def generateRoomDict(room,_from,to,datereq):
 
 def generateEmptySlots(room,_from,to,datereq):
     room_dict = generateRoomDict(room,_from,to,datereq)
-
+    print(room_dict)
     if room is None:
         empty_slot = {new_list.room: [] for new_list in Rooms.objects.all()}
     else:
@@ -83,7 +84,7 @@ def generateEmptySlots(room,_from,to,datereq):
         begin_time = None
 
         # if the slot beginning of day is not boooked
-        if room_dict[rooms][0].from_ts is not _from: # time to begin shool 
+        if room_dict[rooms][0].from_ts != _from: # time to begin shool 
             empty_slot[rooms].append((_from, room_dict[rooms][0].from_ts))
         
         begin_time = room_dict[rooms][0].to_ts
@@ -92,7 +93,7 @@ def generateEmptySlots(room,_from,to,datereq):
             empty_slot[rooms].append((begin_time, room_dict[rooms][rec_ind].from_ts))
             begin_time = room_dict[rooms][rec_ind].to_ts
         
-        if room_dict[rooms][-1].from_ts is not time(23,59,59):
+        if room_dict[rooms][-1].to_ts != time(23,59):
             empty_slot[rooms].append((room_dict[rooms][-1].to_ts,to))
     
     #if there is no record of a room then it is empty whole day

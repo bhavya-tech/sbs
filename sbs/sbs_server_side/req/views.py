@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from collections import defaultdict
 from django.db import models
 from home.models import Record
+import json
 
 @csrf_exempt
 def viewRequests(request):
@@ -22,11 +23,15 @@ def viewRequests(request):
         else: 
             dateReq = date.today()
 
-    pendingReq = defaultdict(list)
-    pendingReq = dict(getPendingRequest(dateReq))
+    pendingReq, pendingReqById = getPendingRequest(dateReq)
+    json_pending_req = json.dumps(pendingReqById)
 
-    return  render(request, 'pendingrequest.html',{'pendingReq':pendingReq,'date':dateReq,'dateCal':dateReq.strftime("%Y-%m-%d")})
-
+    return render(request,'pendingrequest.html',{
+                                                    'pendingReq':pendingReq,
+                                                    'date':dateReq,
+                                                    'dateCal':dateReq.strftime("%Y-%m-%d"),
+                                                    'json_pending_req':json_pending_req,
+                                                })
 
 def getPendingRequest(dateReq):
 
@@ -34,6 +39,14 @@ def getPendingRequest(dateReq):
     request_query_set = Request.objects.filter(date = dateReq).order_by('room','from_ts')
     req_room_dict = defaultdict(list)
     pendingReq = defaultdict(list)
+    pendingReqById = defaultdict(dict)
+
+    for req in request_query_set:
+        req_dict = {}
+        req_dict["details"] = req.details
+        req_dict["event"] = req.event
+        req_dict["requested_by"] = req.requested_by
+        pendingReqById.update({req.id:req_dict})     
 
     for req in request_query_set:
         req_room_dict[req.room].append(req)
@@ -53,7 +66,7 @@ def getPendingRequest(dateReq):
             pendingReq[room_key].append(req_append)
 
     print(pendingReq)
-    return pendingReq
+    return dict(pendingReq), dict(pendingReqById)
 
 @csrf_exempt
 def makeRequest(request):
@@ -62,7 +75,7 @@ def makeRequest(request):
 
     # Take data for request
     req.room = request.POST['room']
-    req.date = datetime.strptime(request.POST['date'], '%B %d, %Y')
+    req.date = datetime.strptime(request.POST['date'], '%Y-%m-%d')
     req.to_ts =  datetime.strptime(request.POST['to'], '%H:%M').time()
     req.from_ts = datetime.strptime(request.POST['from'], '%H:%M').time()
     req.details = request.POST['details']

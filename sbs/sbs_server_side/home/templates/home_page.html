@@ -141,11 +141,11 @@
 				<div class="modal-body" style="padding: 4%; background-color: white; color: #6A6A6A; font-family: 'Crete Round', serif;">
 						<input type = "hidden" id = "date" name = "date" value = "{{date}}" required><br>
 						Time-slot<br>
-						From:<input type="time" id="timeFromReq" class="form-control" name = "from" value = "" required><br>
+						From:<input type="time" id="timeFromReq" class="form-control" name = "from" value = "" required>
 						To:<input type="time" id="timeToReq" class="form-control" name = "to" value="" required> 
 						Event: <input type = "text" id = "event" name = "event" required><br>
 						<input type = "hidden" name ="username" value = "{{request.user.username}}">
-						Room Number:<input type="text" id="room" class="form-control" placeholder="Room number" name = "room" required>
+						Room Number:<input type="text" id="room" class="form-control" placeholder="Room number" name = "room" required readonly>
 						Event details:<input type="text" id="description" class="form-control" placeholder="Event details" name = "details" required>  
 				</div>
 				<div class="modal-footer">
@@ -160,8 +160,6 @@
 			from = id_arr[0];
 			to = id_arr[1];
 			room_num = id_arr[2];
-			
-			console.log(from)
 			
 			var room_default = document.createAttribute("value");
 			room_default.value = room_num;
