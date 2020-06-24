@@ -6,6 +6,7 @@ from collections import defaultdict
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from dateutil.relativedelta import relativedelta
+from django.db import models
 
 '''
 request.user.is_staff to know if is admin
@@ -28,7 +29,7 @@ def homePage(request,req_status):
                                             {'empty_slots':empty_slots,
                                             'req_status':req_status,
                                             'date':datereq.strftime("%Y-%m-%d"),
-                                            'from':_fromdt.strftime("%H:%M"),
+                                            'from':_fromdt,
                                             'to':todt.strftime("%H:%M"),
                                             'room':room,
                                             'max_date':(datereq + relativedelta(years=1)).strftime("%Y-%m-%d"),
@@ -89,10 +90,10 @@ def generateEmptySlots(room,_from,to,datereq):
 
         for rec_ind in range(1, len(room_dict[rooms])):
             empty_slot[rooms].append((begin_time, room_dict[rooms][rec_ind].from_ts))
-            begin_time = room_dict[rooms][0].to_ts
+            begin_time = room_dict[rooms][rec_ind].to_ts
         
         if room_dict[rooms][-1].from_ts is not time(23,59,59):
-            empty_slot[rooms].append((room_dict[rooms][0].to_ts,to))
+            empty_slot[rooms].append((room_dict[rooms][-1].to_ts,to))
     
     #if there is no record of a room then it is empty whole day
     for value in empty_slot.values():
@@ -110,10 +111,10 @@ def parseRequest(request):
     _fromdt = None
 
     if request.method == 'GET':
-        now = datetime.now()
-        _from = now.strftime( "%I:%M %p")
+        now = datetime.now().strftime("%H:%M")
+        _from = datetime.strptime(now,"%H:%M").time()
         _fromdt = now
-        to = time(23,59,59)
+        to = time(23,59)
         todt = datetime.combine(date.today(),time(23,59))
         datereq = date.today()
 
