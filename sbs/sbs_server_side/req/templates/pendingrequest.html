@@ -15,7 +15,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <link href="{% static 'pendingrequest.css' %}" rel="stylesheet" type="text/css">
 </head> 
-<body>
+<body style="background-color: rgb(230,230,230);">
 	<img src="{% static 'logo2.jpeg' %}" style="width: 15%; padding: 12px;">
 <nav class="navbar navbar-default navbar-expand-lg navbar-light">
 	<div class="navbar-header d-flex col">
@@ -81,7 +81,7 @@
     });
 });
 </script>
-<div style="background-color: lavenderblush" class="table-responsive">
+<div style="background-color: rgb(230,230,230);" class="table-responsive">
     <h2>Pending Request</h2>
     {% if pendingReq %}
         <table id="customers" style="width:auto; min-width: 50%;">
@@ -93,20 +93,20 @@
             {% for room,data in pendingReq.items %}
                 {% for clash_block in data %}
                     <tr>
-                        <td rowspan = "{{ clash_block|length }}"> {{ room }} </td>
-                        <td>
+                        <td style="background-color: rgb(256,256,256);" rowspan = "{{ clash_block|length }}"> {{ room }} </td>
+                        <td style="background-color: rgb(256,256,256);">
                             <button data-toggle="popover" data-container="body" data-trigger="focus" data-placement="right" type="button" data-html="true" href="#"  id="{{clash_block.0.id}}">
                             {{clash_block.0.from_ts}} - {{clash_block.0.to_ts}}
                             </button>
-                            <div id = "popover{{clash_block.0.id}}" class = "hide">
+                            <div id = "popover{{clash_block.0.id}}" style="background-color: rgb(210,210,210);" class = "hide">
                                 <h4> {{clash_block.0.event}} </h4>
-                                <p style="text-align:left;">Details:{{clash_block.0.details}}</p>
-                                <p>Requested by:{{clash_block.0.requested_by}}</p>
+                                <p style="text-align:left;">Details:  {{clash_block.0.details}}</p>
+                                <p>Requested by: {{clash_block.0.requested_by}}</p>
 
                                 <form method = "post" action = "{% url 'req:requestAction' %}">
                                 {% csrf_token %}
-                                    <input type="submit" value="accept" name="status">
-                                    <input type="submit" value="reject" name="status">
+                                    <input type="submit" value="accept" class="btn btn-success" name="status">
+                                    <input type="submit" value="reject" class="btn btn-warning" name="status">
                                     <input type="hidden" name="id" value={{ clash_block.0.id }}>
                                 </form>
                             </div>
@@ -116,19 +116,19 @@
                             {% for req in clash_block %}
                                 {% if req is not clash_block.0 %}
                                     <tr>
-                                        <td>
+                                        <td style="background-color: rgb(256,256,256);">
                                             <button data-toggle="popover" data-trigger="focus" data-container="body" data-placement="right" type="button" data-html="true" href="#"  id="{{req.id}}">
                                                 {{req.from_ts}} - {{req.to_ts}}
                                             </button>
 
-                                            <div id = "popover{{req.id}}" class = "hide">
+                                            <div id = "popover{{req.id}}" style="background-color: rgb(210,210,210);" class = "hide">
                                                 <h4>{{req.event}}</h4>
-                                                <p style="text-align:left;">Details:{{ req.details }}</p>
-                                                <p>Requested by:{{ req.requested_by }}</p>
+                                                <p style="text-align:left;">Details:  {{ req.details }}</p>
+                                                <p>Requested by: {{ req.requested_by }}</p>
                                                 <form method = "post" action = "{% url 'req:requestAction' %}">
                                                 {% csrf_token %}
-                                                    <input type="submit" value="accept" name="status">                                                
-                                                    <input type="submit" value="reject" name="status">
+                                                    <input type="submit" value="accept" class="btn btn-success" name="status">                                                
+                                                    <input type="submit" value="reject" class="btn btn-warning" name="status">
                                                     <input type="hidden" name="id" value={{ req.id }}>
                                                 </form>
                                             </div>

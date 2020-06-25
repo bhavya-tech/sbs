@@ -15,7 +15,7 @@
 	<link href="{% static 'home.css' %}" rel="stylesheet" type="text/css">
 	<script src="{% static 'home.js'%}"></script>
 </head> 
-<body style="background-color: snow ;">
+<body style="background-color: rgb(230,230,230);">
 	<img src="{% static 'logo2.jpeg' %}" style="width: 25%; padding: 12px;">
 	<nav class="navbar navbar-default navbar-expand-lg navbar-light">
 		<div class="navbar-header d-flex col">
@@ -97,7 +97,7 @@
 		});
 	});
 	</script>
-	<div class="table-responsive" style="background-color: lavenderblush;">
+	<div class="table-responsive" style="background-color: rgb(230,230,230);">
 		
 		<p> Hello {{request.user.username}} </p>
 
@@ -112,8 +112,8 @@
 
 					{% for room_no, rec in empty_slots.items %}
 						<tr >
-							<td rowspan = "{rec|length}"> {{ room_no }} </td> <!--  Room no.  --> 
-							<td>
+							<td rowspan = "{rec|length}" style="background-color: rgb(256,256,256);"> {{ room_no }} </td> <!--  Room no.  --> 
+							<td style="background-color: rgb(256,256,256);">
 								{% for entries in rec %}
 									<!--  time slot  -->
 									<button type="button" class="open" data-toggle="modal" data-target="#myModal" id = "{{ entries.0|time:'H:i' }} {{ entries.1|time:'H:i' }} {{room_no}}">
@@ -134,19 +134,18 @@
 		<div class="modal-dialog">
 			<div class="modal-header" style="padding: 4%; background-color: white; color: #6A6A6A; font-family: 'Crete Round', serif;">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title">Send Request</h4>
+				<h4 class="modal-title">Request Information</h4>
 			</div>
 			<form method = "POST" action = "{% url 'req:makeRequest'%}"
 				<div class="modal-body" style="padding: 4%; background-color: white; color: #6A6A6A; font-family: 'Crete Round', serif;">
-						<input type = "hidden" id = "date" name = "date" value = "{{date}}" required><br>
-						Time-slot<br>
+						<input type = "hidden" id = "date" name = "date" value = "{{date}}" required>
 						From:<input type="time" id="timeFromReq" class="form-control" name = "from" value = "" required>
-						To:<input type="time" id="timeToReq" class="form-control" name = "to" value="" required> 
-						Event: <input type = "text" id = "event" name = "event" required><br>
+						To:<input type="time" id="timeToReq" class="form-control" name = "to" value="" required>
+						Event: <input type = "text" id = "event" class="form-control" name = "event" required>
 						<input type = "hidden" name ="username" value = "{{request.user.username}}">
 						Room Number:<input type="text" id="room" class="form-control" placeholder="Room number" name = "room" required readonly>
-						Event details:<input type="text" id="description" class="form-control" placeholder="Event details" name = "details" >  
-						<button type="submit" class="submit" data-placement="submit">Submit</button>
+						Event details:<input type="text" id="description" class="form-control" placeholder="Event details" name = "details" ><br>  
+						<input class="btn btn-success" type="submit" value="Submit">
 				</div>
 			</form>
 		</div>

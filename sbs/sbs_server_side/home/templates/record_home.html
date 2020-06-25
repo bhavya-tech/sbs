@@ -14,7 +14,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <link href="{% static 'record_home.css'%}" rel="stylesheet" type="text/css">
 </head> 
-<body>
+<body style="background-color: rgb(230,230,230);">
 	<img src="{% static 'logo2.jpeg'%}" style="width: 15%; padding: 12px;">
 <nav class="navbar navbar-default navbar-expand-lg navbar-light">
 	<div class="navbar-header d-flex col">
@@ -131,7 +131,7 @@
   </a>
 </div>
 -->
-<div  style="background-color: lavenderblush;" class="table-responsive">
+<div style="background-color: rgb(230,230,230);" class="table-responsive">
   <h2>Event Records</h2>
 	{% if record_slot %}
 		<table id="customers" style="width:auto; min-width: 50%;">
@@ -143,16 +143,30 @@
 			{% for room_no, rec in record_slot.items %}
 				<tr>
 					<td rowspan = "{rec|length}"> {{ room_no }} </td> <!--  Room no.  --> 
-					<td>
-						{% for entries in rec %}
+					<td style="background-color: rgb(256,256,256);">
+						
+							<!--  time slot  -->
+							<button type="button" class="open" data-toggle="modal" data-target="#myModal" id = "{{rec.0.id}}">
+								{{ rec.0.from_ts }} - {{ rec.0.to_ts }}
+							</button> 
+							<br>
+					</td>
+				</tr>
+					{% for entries in rec %}
+					{% if entries is not rec.0%}
+					<tr>
+					<td style="background-color: rgb(256,256,256);">
+						
 							<!--  time slot  -->
 							<button type="button" class="open" data-toggle="modal" data-target="#myModal" id = "{{entries.id}}">
 								{{ entries.from_ts }} - {{ entries.to_ts }}
 							</button> 
 							<br>
-						{% endfor %}
-					</td>	
-				</tr>
+					</td>
+					</tr>
+					{% endif %}
+					{% endfor %}
+				
 			{% endfor %}
 		</table>
 	{% else %}
@@ -163,15 +177,16 @@
 		<div class="modal-dialog">
 			<div class="modal-header" style="padding: 4%; background-color: white; color: #6A6A6A; font-family: 'Crete Round', serif;">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title">Send Request</h4>
+				<h4 class="modal-title">Record</h4>
 			</div>
-			<div class="modal-body" style="padding: 4%; background-color: white; color: #6A6A6A; font-family: 'Crete Round', serif;">					<p>Record</p>
-				Date:<input type = "date" id = "date" name = "date" value = "" required><br>
-				From:<input type="time" id="timeFromReq" class="form-control" name = "from" value = "" required>					To:<input type="time" id="timeToReq" class="form-control" name = "to" value="" required> 
-				Event: <input type = "text" id = "event" name = "event" value = "" required><br>
-				Requested_by:<input type = "text" name ="username" value = "" id = "requested_by">
-				Room Number:<input type="text" id="room" class="form-control" placeholder="Room number" name = "room" value = "" required readonly>
-				Event details:<input type="text" id="details" class="form-control" placeholder="Event details" name = "details" value = "" required>  
+			<div class="modal-body" style="padding: 4%; background-color: white; color: #6A6A6A; font-family: 'Crete Round', serif;">
+				Date:<input type = "date" id = "date" class="form-control" name = "date" value = "" readonly>
+				From:<input type="time" id="timeFromReq" class="form-control" name = "from" value = "" readonly>					
+				To:<input type="time" id="timeToReq" class="form-control" name = "to" value="" readonly> 
+				Event: <input type = "text" id = "event" class="form-control" name = "event" value = "" readonly>
+				Requested_by:<input type = "text" name ="username" class="form-control" value = "" id = "requested_by" readonly>
+				Room Number:<input type="text" id="room" class="form-control" placeholder="Room number" name = "room" value = "" readonly>
+				Event details:<input type="text" id="details" class="form-control" placeholder="Event details" name = "details" value = "" readonly>  
 			</div>
 			<div class="modal-footer">
 
