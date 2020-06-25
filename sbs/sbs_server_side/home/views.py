@@ -42,6 +42,8 @@ def viewRecords(request):
     room,_from,to,datereq,todt,_fromdt = parseRequest(request)
     
     record_slot,record_details = generateRecordDict(room,_from,to,datereq)
+    print(record_details)
+    record_details = json.dumps(record_details)
 
     return render(request,'record_home.html',{'record_slot':record_slot,
                                               'record_details':record_details,
@@ -54,21 +56,28 @@ def viewRecords(request):
 
 def generateRecordDict(room,_from,to,datereq):
     room_dict = generateRoomDict(room,_from,to,datereq)
+    record_details = defaultdict(dict)
 
     if room is None:
         record_slot = {new_list.room: [] for new_list in Rooms.objects.all()}
-        record_details = {new_list.room: [] for new_list in Rooms.objects.all()}
     else:
         record_slot = {room : []}
-        record_details = {room : []}
 
     for rooms in room_dict.keys():
         for rec in room_dict[rooms]:
-            record_details[rooms].append(recToDict(rec))
+            record_details[rec.id].update(recToDict(rec))
             record_slot[rooms].append({'from_ts':rec.from_ts,
                                         'to_ts':rec.to_ts,
                                         'id':rec.id,
                                     })
+
+    rec_slot_delete_key = []
+    for key in record_slot.keys():
+        if len(record_slot[key]) == 0:
+            rec_slot_delete_key.append(key)
+    
+    for del_key in rec_slot_delete_key:
+        del record_slot[del_key]
 
     return record_slot,record_details
 
@@ -97,7 +106,6 @@ def generateEmptySlots(room,_from,to,datereq):
             begin_time = room_dict[rooms][rec_ind].to_ts
         
         if room_dict[rooms][-1].to_ts != time(23,59) and room_dict[rooms][-1].to_ts < to:
-            print("AA       ")
             empty_slot[rooms].append((room_dict[rooms][-1].to_ts,to))
 
         if len(empty_slot[rooms]) == 0:
@@ -120,12 +128,11 @@ def recToDict(rec = Record()):
     rec_dict['room'] = rec.room
     rec_dict['event'] = rec.event
     rec_dict['requested_by'] = rec.requested_by
-    rec_dict['date'] = rec.date
-    rec_dict['from_ts'] = rec.from_ts
-    rec_dict['to_ts'] = rec.to_ts
+    rec_dict['date'] = str(rec.date)
+    rec_dict['from_ts'] = str(rec.from_ts)
+    rec_dict['to_ts'] = str(rec.to_ts)
 
     return rec_dict
-
 
 """
 give args of room, from and to with date corresponding
@@ -159,7 +166,7 @@ def parseRequest(request):
         _from = datetime.strptime(now,"%H:%M").time()
         _fromdt = now
         to = time(23,59)
-        todt = datetime.combine(date.today(),time(23,59))
+        todt = datetime.combine(date.today(),time(23,59)).time()
         datereq = date.today()
 
     else:
@@ -184,10 +191,10 @@ def parseRequest(request):
                 to = datetime.strptime(request.POST['to'], '%H:%M').time()
             except ValueError:
                 to = time(23,59)
-            todt = datetime.combine(datereq,to)
+            todt = datetime.combine(datereq,to).time()
         else:
             to = time(23,59)
-            todt = datetime.combine(datereq,to)
+            todt = datetime.combine(datereq,to).time()
 
         if 'from' in request.POST:
             try:
@@ -197,7 +204,7 @@ def parseRequest(request):
                     _from = datetime.now().time()
                 else:
                     _from = time(0)
-            _fromdt = datetime.combine(datereq,_from)
+            _fromdt = datetime.combine(datereq,_from).time()
 
         else:
             _from = datetime.now().time()

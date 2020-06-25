@@ -7,5 +7,6 @@ app_name = 'home'
 
 urlpatterns = [
      path('<req_status>/',views.homePage,name = 'homePage'),
+     path('viewRecords',views.viewRecords,name = 'viewRecords'),
      path('',include('req.urls')),
 ]

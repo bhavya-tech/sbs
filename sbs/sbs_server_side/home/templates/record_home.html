@@ -135,30 +135,71 @@
 -->
 <div  style="background-color: lavenderblush;" class="table-responsive">
   <h2>Event Records</h2>
-  {% if record_slots %}
-			<table  style="width:auto; min-width: 50%;">
-					<tr>
-						<th>Room No.</th>
-						<td style="background-color: #4CAF50; color: white;">Time Slot</td>
-					</tr>
+	{% if record_slot %}
+		<table id="customers" style="width:auto; min-width: 50%;">
+			<tr>
+				<th>Room No.</th>
+				<td style="background-color: #4CAF50; color: white;">Time Slot</td>
+			</tr>
 
-					{% for room_no, rec in record_slots.items %}
-						<tr >
-							<td rowspan = "{rec|length}"> {{ room_no }} </td> <!--  Room no.  --> 
-							<td>
-								{% for entries in rec %}
-									<!--  time slot  -->
-									<button type="button" class="open" data-toggle="modal" data-target="#myModal" id = "{{ entries.0|time:'H:i' }} {{ entries.1|time:'H:i' }} {{room_no}}">
-										{{ entries.0 }} - {{ entries.1 }}
-									</button> 
-									<br>
-								{% endfor %}
-							</td>	
-						</tr>
-					{% endfor %}
-			</table>
-		{% else %}
-			<p> No records of the day </p>
-		{% endif %}
+			{% for room_no, rec in record_slot.items %}
+				<tr>
+					<td rowspan = "{rec|length}"> {{ room_no }} </td> <!--  Room no.  --> 
+					<td>
+						{% for entries in rec %}
+							<!--  time slot  -->
+							<button type="button" class="open" data-toggle="modal" data-target="#myModal" id = "{{entries.id}}">
+								{{ entries.from_ts }} - {{ entries.to_ts }}
+							</button> 
+							<br>
+						{% endfor %}
+					</td>	
+				</tr>
+			{% endfor %}
+		</table>
+	{% else %}
+		<p> No records of the day </p>
+	{% endif %}
+
+	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-header" style="padding: 4%; background-color: white; color: #6A6A6A; font-family: 'Crete Round', serif;">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Send Request</h4>
+			</div>
+			<form method = "POST" action = "{% url 'req:makeRequest'%}"
+				<div class="modal-body" style="padding: 4%; background-color: white; color: #6A6A6A; font-family: 'Crete Round', serif;">
+						<p>Record</p>
+						Date:<input type = "date" id = "date" name = "date" value = "" required><br>
+						From:<input type="time" id="timeFromReq" class="form-control" name = "from" value = "" required>
+						To:<input type="time" id="timeToReq" class="form-control" name = "to" value="" required> 
+						Event: <input type = "text" id = "event" name = "event" value = "" required><br>
+						Requested_by:<input type = "text" name ="username" value = "" id = "requested_by">
+						Room Number:<input type="text" id="room" class="form-control" placeholder="Room number" name = "room" value = "" required readonly>
+						Event details:<input type="text" id="details" class="form-control" placeholder="Event details" name = "details" value = "" required>  
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="submit" data-placement="submit">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script>
+	const record_details = {{record_details|safe}}
+		$('#myModal').on('show.bs.modal', function(e) {
+			id_rec = e.relatedTarget.id;
+			console.log(id_rec)
+			
+			document.getElementById("timeFromReq").value = record_details[id_rec].from_ts;
+			document.getElementById("timeToReq").value = record_details[id_rec].to_ts;
+			document.getElementById("room").value = record_details[id_rec].room;
+			document.getElementById("requested_by").value = record_details[id_rec].requested_by
+			document.getElementById("details").value = record_details[id_rec].details
+			document.getElementById("event").value = record_details[id_rec].event
+			document.getElementById("date").value = record_details[id_rec].date
+			
+		});
+	</script>
 </body>
 </html>                                                        

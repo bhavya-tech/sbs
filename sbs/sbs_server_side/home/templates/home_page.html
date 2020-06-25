@@ -36,8 +36,8 @@
 					<ul class="dropdown-menu">					
 						<li><a href="#" class="dropdown-item">Upcoming Events</a></li>
 						{% if request.user.is_staff %}
-						<li><a href="#" class="dropdown-item">Send Requests</a></li>
 						<li><a href="{% url 'req:viewRequests' %}" class="dropdown-item">Pending Requests</a></li>
+						<li><a href="{% url 'home:viewRecords'%}" class="dropdown-item"> View Records </a></li>
 						{% endif %}
 						<li><a href="#" class="dropdown-item">Available Time-slots</a></li>
 					</ul>
