@@ -95,17 +95,19 @@
                     <tr>
                         <td rowspan = "{{ clash_block|length }}"> {{ room }} </td>
                         <td>
-                            <button data-toggle="popover" data-container="body" data-placement="right" type="button" data-html="true" href="#"  id="{{clash_block.0.id}}">
+                            <button data-toggle="popover" data-container="body" data-trigger="focus" data-placement="right" type="button" data-html="true" href="#"  id="{{clash_block.0.id}}">
                             {{clash_block.0.from_ts}} - {{clash_block.0.to_ts}}
                             </button>
                             <div id = "popover{{clash_block.0.id}}" class = "hide">
-                                <p>Details:{{clash_block.0.details}}</p>
+                                <h4> {{clash_block.0.event}} </h4>
+                                <p style="text-align:left;">Details:{{clash_block.0.details}}</p>
                                 <p>Requested by:{{clash_block.0.requested_by}}</p>
 
                                 <form method = "post" action = "{% url 'req:requestAction' %}">
                                 {% csrf_token %}
+                                    <input type="submit" value="accept" name="status">
                                     <input type="submit" value="reject" name="status">
-                                    <input type="submit" value="accept" name="status">                                <input type="hidden" name="id" value={{ clash_block.0.id }}>
+                                    <input type="hidden" name="id" value={{ clash_block.0.id }}>
                                 </form>
                             </div>
                         </td>
@@ -115,17 +117,18 @@
                                 {% if req is not clash_block.0 %}
                                     <tr>
                                         <td>
-                                            <button data-toggle="popover" data-container="body" data-placement="right" type="button" data-html="true" href="#"  id="{{req.id}}">
+                                            <button data-toggle="popover" data-trigger="focus" data-container="body" data-placement="right" type="button" data-html="true" href="#"  id="{{req.id}}">
                                                 {{req.from_ts}} - {{req.to_ts}}
                                             </button>
 
                                             <div id = "popover{{req.id}}" class = "hide">
-                                                <p>Details:{{ req.details }}</p>
+                                                <h4>{{req.event}}</h4>
+                                                <p style="text-align:left;">Details:{{ req.details }}</p>
                                                 <p>Requested by:{{ req.requested_by }}</p>
                                                 <form method = "post" action = "{% url 'req:requestAction' %}">
                                                 {% csrf_token %}
+                                                    <input type="submit" value="accept" name="status">                                                
                                                     <input type="submit" value="reject" name="status">
-                                                    <input type="submit" value="accept" name="status">
                                                     <input type="hidden" name="id" value={{ req.id }}>
                                                 </form>
                                             </div>

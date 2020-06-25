@@ -51,7 +51,7 @@ def getPendingRequest(dateReq):
                 pendingReq[room_key].append(req_append)
                 req_append = []
         
-        if len(req_append) is not 0:
+        if len(req_append) != 0:
             pendingReq[room_key].append(req_append)
 
     print(pendingReq)
@@ -67,7 +67,10 @@ def makeRequest(request):
     req.date = datetime.strptime(request.POST['date'], '%Y-%m-%d')
     req.to_ts =  datetime.strptime(request.POST['to'], '%H:%M').time()
     req.from_ts = datetime.strptime(request.POST['from'], '%H:%M').time()
-    req.details = request.POST['details']
+    if request.POST['details']:
+        req.details = request.POST['details']
+    else:
+        req.details = "     -      "
     req.event = request.POST['event']
     req.requested_by = request.POST.get('username')
     
@@ -91,7 +94,7 @@ def requestAction(request):
     else:
         redirect('req:viewRequests')
 
-    if status is 'reject':
+    if status == 'reject':
         Request.objects.get(id = req_id).delete()
     else:
         try:
@@ -99,7 +102,7 @@ def requestAction(request):
         except Request.DoesNotExist:
             req = None
         
-        if req is not None:
+        if req != None:
             print("Calling add")
             rec = reqToRec(req)
             deleteOverlappingReq(req)
