@@ -111,7 +111,7 @@ def generateEmptySlots(room,_from,to,datereq):
     
     #if there is no record of a room then it is empty whole day
     for key,value in empty_slot.items():
-        if len(value) is 0 and not Record.objects.filter(from_ts__lte = _from, to_ts__gte = to, room = key):
+        if len(value) is 0 and not Record.objects.filter(from_ts__lte = _from, to_ts__gte = to, room = key).exists():
             value.append((_from,to))
         else:
             delete_record_key.append(key)
@@ -180,7 +180,7 @@ def parseRequest(request):
 
         if 'date' in request.POST:
             try:
-                datereq =  datetime.datetime.strptime(request.POST['date'], '%Y-%m-%d')
+                datereq =  datetime.strptime(request.POST['date'], '%Y-%m-%d')
             except ValueError:
                 datereq = date.today()
         else:

@@ -16,7 +16,7 @@ def viewRequests(request):
     else:
         if 'date' in request.POST:
             try:
-                dateReq = request.POST['date']
+                dateReq = datetime.strptime(request.POST['date'], '%Y-%m-%d')
             except ValueError:
                 dateReq = date.today()
         else: 

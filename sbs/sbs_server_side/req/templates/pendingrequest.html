@@ -34,7 +34,7 @@
 			<li class="nav-item dropdown">
 				<a data-toggle="dropdown" class="nav-link dropdown-toggle" href="#">Menu<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="#" class="dropdown-item">Pending Requests</a></li>
+                	<li><a href="{% url 'home:viewRecords'%}" class="dropdown-item"> View Records </a></li>
 					<li><a href="{% url 'home:homePage' 0 %}" class="dropdown-item">Available Time-slots</a></li><!--href=home_page.html or whatever the name of the home page html file is-->
 				</ul>
 			</li>
@@ -83,67 +83,63 @@
 </script>
 <div style="background-color: lavenderblush" class="table-responsive">
     <h2>Pending Request</h2>
-    <table id="customers" style="width:auto; min-width: 50%;">
-    <tr>
-        <th>Room No.</th>
-        <td style="background-color: #4CAF50; color: white;">Time Slot</td>
-    </tr>
-
-    
-    {% csrf_token %}
-    <input type = "hidden" name = "date" value = "{{date}}">
-
-        {% for room,data in pendingReq.items %}
-            {% for clash_block in data %}
+    {% if pendingReq %}
+        <table id="customers" style="width:auto; min-width: 50%;">
             <tr>
-                <td rowspan = "{{ clash_block|length }}"> {{ room }} </td>
-                <td>
-                    <button data-toggle="popover" data-container="body" data-placement="right" type="button" data-html="true" href="#"  id="{{clash_block.0.id}}">
-                    {{clash_block.0.from_ts}} - {{clash_block.0.to_ts}}
-                    </button>
-                    <div id = "popover{{clash_block.0.id}}" class = "hide">
-                        <p>Details:{{clash_block.0.details}}</p>
-                        <p>Requested by:{{clash_block.0.requested_by}}</p>
-                        <form method = "post" action = "{% url 'req:requestAction' %}">
-                            <input type="submit" value="reject" name="status">
-                            <input type="submit" value="accept" name="status">
-                            <input type="hidden" name="id" value={{ clash_block.0.id }}>
-                        </form>
-                    </div>
-                </td>
-            </tr>   
-                {% if clash_block|length > 1 %}
-                    {% for req in clash_block %}
-                        {% if req is not clash_block.0 %}
+                <th>Room No.</th>
+                <td style="background-color: #4CAF50; color: white;">Time Slot</td>
+            </tr>
+            
+            {% for room,data in pendingReq.items %}
+                {% for clash_block in data %}
+                    <tr>
+                        <td rowspan = "{{ clash_block|length }}"> {{ room }} </td>
+                        <td>
+                            <button data-toggle="popover" data-container="body" data-placement="right" type="button" data-html="true" href="#"  id="{{clash_block.0.id}}">
+                            {{clash_block.0.from_ts}} - {{clash_block.0.to_ts}}
+                            </button>
+                            <div id = "popover{{clash_block.0.id}}" class = "hide">
+                                <p>Details:{{clash_block.0.details}}</p>
+                                <p>Requested by:{{clash_block.0.requested_by}}</p>
 
-                            <tr>
-                                <td>
-                                    <button data-toggle="popover" data-container="body" data-placement="right" type="button" data-html="true" href="#"  id="{{req.id}}">
-                                        {{req.from_ts}} - {{req.to_ts}}
-                                    </button>
+                                <form method = "post" action = "{% url 'req:requestAction' %}">
+                                {% csrf_token %}
+                                    <input type="submit" value="reject" name="status">
+                                    <input type="submit" value="accept" name="status">                                <input type="hidden" name="id" value={{ clash_block.0.id }}>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>   
+                        {% if clash_block|length > 1 %}
+                            {% for req in clash_block %}
+                                {% if req is not clash_block.0 %}
+                                    <tr>
+                                        <td>
+                                            <button data-toggle="popover" data-container="body" data-placement="right" type="button" data-html="true" href="#"  id="{{req.id}}">
+                                                {{req.from_ts}} - {{req.to_ts}}
+                                            </button>
 
-                                    <div id = "popover{{req.id}}" class = "hide">
-                                        <p>Details:{{ req.details }}</p>
-                                        <p>Requested by:{{ req.requested_by }}</p>
-                                        <form method = "post" action = "{% url 'req:requestAction' %}">
-                                            <input type="submit" value="reject" name="status">
-                                            <input type="submit" value="accept" name="status">
-                                            <input type="hidden" name="id" value={{ req.id }}>
-                                        </form>
-                                    </div>
-                                    
-                        </form>
-                    </div>
-                                    
-                                </td>
-                            </tr>
-
+                                            <div id = "popover{{req.id}}" class = "hide">
+                                                <p>Details:{{ req.details }}</p>
+                                                <p>Requested by:{{ req.requested_by }}</p>
+                                                <form method = "post" action = "{% url 'req:requestAction' %}">
+                                                {% csrf_token %}
+                                                    <input type="submit" value="reject" name="status">
+                                                    <input type="submit" value="accept" name="status">
+                                                    <input type="hidden" name="id" value={{ req.id }}>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
                         {% endif %}
-                    {% endfor %}
-                {% endif %}
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </table>
+        </table>
+    {% else %}
+    <p> No pending request</p>
+    {% endif %}
 </div>
 	
     
