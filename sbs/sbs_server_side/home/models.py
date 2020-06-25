@@ -13,7 +13,7 @@ class Record(models.Model):
     to_ts = models.TimeField()
 
     def __str__(self):
-        return self.room
+        return self.room+' '+str(self.from_ts)+' '+str(self.to_ts)
 
 class Rooms(models.Model):
     room = models.CharField(max_length=3)

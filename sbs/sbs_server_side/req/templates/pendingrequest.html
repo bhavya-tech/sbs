@@ -35,31 +35,27 @@
 				<a data-toggle="dropdown" class="nav-link dropdown-toggle" href="#">Menu<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="#" class="dropdown-item">Pending Requests</a></li>
-					<li><a href="home.html" class="dropdown-item">Available Time-slots</a></li><!--href=home_page.html or whatever the name of the home page html file is-->
+					<li><a href="{% url 'home:homePage' 0 %}" class="dropdown-item">Available Time-slots</a></li><!--href=home_page.html or whatever the name of the home page html file is-->
 				</ul>
 			</li>
 			<li class="nav-item "><a href="#" class="nav-link">Contact</a></li>
 		</ul>
-		
-
-			
-					
+				
 		<ul class="nav navbar-nav navbar-right ml-auto">
 			<li type="button" class="nav-item dropdown" data-toggle="tooltip" data-placement="bottom" title="Search">
 				<a data-toggle="dropdown" class="nav-link dropdown-toggle" href="#"><i class="fa fa-search"></i></a>
 				<a data-toggle="dropdown" class="nav-link dropdown-toggle hide" href="#"><i class="fa fa-close"></i></a>
 				<ul class="dropdown-menu">
 					<li>
-                        <form>
+                        <form action = "{% url 'req:viewRequests' %}" method ="post" >
+                        {% csrf_token %}
                             <div class="input-group search-box">
-								<form>
-								 <input type="date" id="datepicker" class="form-control">							
-								<p style="text-align:center;">Search by Room number</p><input type="number" id="roomNumber" class="form-control" placeholder="Room number" ><p style="text-align: center;">Or<br>Search by time slot</p>
-								To:<input type="time" id="timeTo" class="form-control" placeholder="to" ><input type="time" id="timeFrom" class="form-control" placeholder="from" >
-								</form>
-								<span class="input-group-btn">
-									<button type="button" class="btn btn-primary"><i class="fa fa-search"></i></button>
-								</span>
+								
+                                    <input type="date" id="datepicker" class="form-control" name = "date" value = "{{dateCal}}">							
+                                    
+                                    <span class="input-group-btn">
+                                        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+								    </span>
                             </div>
                         </form>                        
 					</li>
@@ -88,18 +84,58 @@
 <div style="background-color: lavenderblush" class="table-responsive">
     <h2>Pending Request</h2>
     <table id="customers" style="width:auto; min-width: 50%;">
+    <tr>
+        <th>Room No.</th>
+        <td style="background-color: #4CAF50; color: white;">Time Slot</td>
+    </tr>
+
+    
+    {% csrf_token %}
+    <input type = "hidden" name = "date" value = "{{date}}">
 
         {% for room,data in pendingReq.items %}
             {% for clash_block in data %}
-                <td rowspan = "{{clash_block|length}}"> {{ room }} </td>
-                <td><button> {{clash_block.0.from_ts}} - {{clash_block.0.to_ts}} </button></td>
-
+            <tr>
+                <td rowspan = "{{ clash_block|length }}"> {{ room }} </td>
+                <td>
+                    <button data-toggle="popover" data-container="body" data-placement="right" type="button" data-html="true" href="#"  id="{{clash_block.0.id}}">
+                    {{clash_block.0.from_ts}} - {{clash_block.0.to_ts}}
+                    </button>
+                    <div id = "popover{{clash_block.0.id}}" class = "hide">
+                        <p>Details:{{clash_block.0.details}}</p>
+                        <p>Requested by:{{clash_block.0.requested_by}}</p>
+                        <form method = "post" action = "{% url 'req:requestAction' %}">
+                            <input type="submit" value="reject" name="status">
+                            <input type="submit" value="accept" name="status">
+                            <input type="hidden" name="id" value={{ clash_block.0.id }}>
+                        </form>
+                    </div>
+                </td>
+            </tr>   
                 {% if clash_block|length > 1 %}
                     {% for req in clash_block %}
-                        {% if forloop.counter != 0 %}
+                        {% if req is not clash_block.0 %}
 
                             <tr>
-                                <td><button> {{req.from_ts}} - {{req.to_ts}} </button></td>
+                                <td>
+                                    <button data-toggle="popover" data-container="body" data-placement="right" type="button" data-html="true" href="#"  id="{{req.id}}">
+                                        {{req.from_ts}} - {{req.to_ts}}
+                                    </button>
+
+                                    <div id = "popover{{req.id}}" class = "hide">
+                                        <p>Details:{{ req.details }}</p>
+                                        <p>Requested by:{{ req.requested_by }}</p>
+                                        <form method = "post" action = "{% url 'req:requestAction' %}">
+                                            <input type="submit" value="reject" name="status">
+                                            <input type="submit" value="accept" name="status">
+                                            <input type="hidden" name="id" value={{ req.id }}>
+                                        </form>
+                                    </div>
+                                    
+                        </form>
+                    </div>
+                                    
+                                </td>
                             </tr>
 
                         {% endif %}
@@ -107,50 +143,23 @@
                 {% endif %}
             {% endfor %}
         {% endfor %}
-
     </table>
 </div>
-<div id="myModal" class="modal" style="background-color:lavenderblush; width: 50%; margin-left: auto; margin-right: auto;">
-  
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <p class="modal-title">Pending Request</p>
-      </div>
-      <div class="modal-body">
-          <p style="text-align: left;">
-              Requested by: Yashraj Kakkad<br>
-              Event: Ardino Workshop<br>
-              Description: The Programming club would like to arrange am ardino workshop for all beginners and the workshop will be sponspored by the Pclub of IIT Mumbai.
-          </p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-success">Accept</button>
-        <button type="button" class="btn btn-outline-danger">Decline</button>
-      </div>
-    </div>
+	
+    
 
-</div>
-<script>
-var modal = document.getElementById("myModal");
-var btn = document.getElementById("btn1");
-var button = document.getElementsByClassName("submit");
-btn.onclick = function() {
-  modal.style.display = "block";
-}
+    <script>
+    $("[data-toggle=popover]").each(function(i, obj) {
 
-// When the user clicks on <span> (x), close the modal
-button.onclick = function() {
-  modal.style.display = "none";
-}
+        $(this).popover({
+        html: true,
+        content: function() {
+                var id = $(this).attr('id')
+                return $('#popover' + id).html();
+            }
+        });
 
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-}
-</script>
+    });
+    </script>
 </body>
 </html>                                                        

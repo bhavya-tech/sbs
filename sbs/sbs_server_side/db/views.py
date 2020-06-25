@@ -16,7 +16,12 @@ def user_login(request):
         if user:
             if user.is_active:
                 login(request,user)
-                return redirect('home:homePage',req_status=0)
+
+                if user.is_staff:
+                    return redirect('req:viewRequests')
+                else:
+                    return redirect('home:homePage',req_status=0)
+
             else:
                 return HttpResponse("Your account was inactive.")
         else:
