@@ -34,7 +34,6 @@
 				<li class="nav-item dropdown">
 					<a data-toggle="dropdown" class="nav-link dropdown-toggle" href="#">Menu<b class="caret"></b></a>
 					<ul class="dropdown-menu">					
-						<li><a href="#" class="dropdown-item">Upcoming Events</a></li>
 						{% if request.user.is_staff %}
 						<li><a href="{% url 'req:viewRequests' %}" class="dropdown-item">Pending Requests</a></li>
 						<li><a href="{% url 'home:viewRecords'%}" class="dropdown-item"> View Records </a></li>

@@ -108,13 +108,13 @@ def generateEmptySlots(room,_from,to,datereq):
         if room_dict[rooms][-1].to_ts != time(23,59) and room_dict[rooms][-1].to_ts < to:
             empty_slot[rooms].append((room_dict[rooms][-1].to_ts,to))
 
-        if len(empty_slot[rooms]) == 0:
-            delete_record_key.append(rooms)
     
     #if there is no record of a room then it is empty whole day
-    for value in empty_slot.values():
-        if len(value) is 0:
+    for key,value in empty_slot.items():
+        if len(value) is 0 and not Record.objects.filter(from_ts__lte = _from, to_ts__gte = to, room = key):
             value.append((_from,to))
+        else:
+            delete_record_key.append(key)
     
     for del_key in delete_record_key:
         del empty_slot[del_key]

@@ -33,7 +33,7 @@
 			<li class="nav-item dropdown">
 				<a data-toggle="dropdown" class="nav-link dropdown-toggle" href="#">Menu<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="pendingrequest.html" class="dropdown-item">Pending Requests</a></li>
+					<li><a href="{% url 'req:viewRequests' %}" class="dropdown-item">Pending Requests</a></li>
 					<li><a href="{%url 'home:homePage' 0 %}">Available Time-slots</a></li><!--href=home_page.html or whatever the name of the home page html file is-->
 				</ul>
 			</li>
@@ -167,21 +167,17 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<h4 class="modal-title">Send Request</h4>
 			</div>
-			<form method = "POST" action = "{% url 'req:makeRequest'%}"
-				<div class="modal-body" style="padding: 4%; background-color: white; color: #6A6A6A; font-family: 'Crete Round', serif;">
-						<p>Record</p>
-						Date:<input type = "date" id = "date" name = "date" value = "" required><br>
-						From:<input type="time" id="timeFromReq" class="form-control" name = "from" value = "" required>
-						To:<input type="time" id="timeToReq" class="form-control" name = "to" value="" required> 
-						Event: <input type = "text" id = "event" name = "event" value = "" required><br>
-						Requested_by:<input type = "text" name ="username" value = "" id = "requested_by">
-						Room Number:<input type="text" id="room" class="form-control" placeholder="Room number" name = "room" value = "" required readonly>
-						Event details:<input type="text" id="details" class="form-control" placeholder="Event details" name = "details" value = "" required>  
-				</div>
-				<div class="modal-footer">
-					<button type="submit" class="submit" data-placement="submit">Submit</button>
-				</div>
-			</form>
+			<div class="modal-body" style="padding: 4%; background-color: white; color: #6A6A6A; font-family: 'Crete Round', serif;">					<p>Record</p>
+				Date:<input type = "date" id = "date" name = "date" value = "" required><br>
+				From:<input type="time" id="timeFromReq" class="form-control" name = "from" value = "" required>					To:<input type="time" id="timeToReq" class="form-control" name = "to" value="" required> 
+				Event: <input type = "text" id = "event" name = "event" value = "" required><br>
+				Requested_by:<input type = "text" name ="username" value = "" id = "requested_by">
+				Room Number:<input type="text" id="room" class="form-control" placeholder="Room number" name = "room" value = "" required readonly>
+				Event details:<input type="text" id="details" class="form-control" placeholder="Event details" name = "details" value = "" required>  
+			</div>
+			<div class="modal-footer">
+
+			</div>
 		</div>
 	</div>
 
