@@ -26,7 +26,7 @@ def homePage(request,req_status):
     room,_from,to,datereq,todt,_fromdt = parseRequest(request)
     empty_slots = generateEmptySlots(room,_from,to,datereq)
     empty_slots = dict(empty_slots)
-    #print(empty_slots)
+    print(empty_slots)
     return  render(request, 'home_page.html',
                                             {'empty_slots':empty_slots,
                                             'req_status':req_status,
@@ -111,10 +111,11 @@ def generateEmptySlots(room,_from,to,datereq):
     
     #if there is no record of a room then it is empty whole day
     for key,value in empty_slot.items():
-        if len(value) is 0 and not Record.objects.filter(from_ts__lte = _from, to_ts__gte = to, room = key).exists():
-            value.append((_from,to))
-        else:
-            delete_record_key.append(key)
+        if len(value) == 0:
+            if not Record.objects.filter(from_ts__lte = _from, to_ts__gte = to, room = key).exists():
+                value.append((_from,to))
+            else:
+                delete_record_key.append(key)
     
     for del_key in delete_record_key:
         del empty_slot[del_key]
@@ -170,7 +171,6 @@ def parseRequest(request):
         datereq = date.today()
 
     else:
-
         # Set defaults to empty fileds
         if 'room' in request.POST:
             try:
@@ -210,6 +210,4 @@ def parseRequest(request):
             _from = datetime.now().time()
             _fromdt = datetime.combine(datereq,_from)
             
-           
-
     return room,_from,to,datereq,todt,_fromdt
